@@ -37,7 +37,7 @@ Go back to command prompt:
 ````
 exit
 ````
-Change default user READ THE CODE
+Change default user
 ````
 Arch.exe config --default-user your-user-here
 ````
