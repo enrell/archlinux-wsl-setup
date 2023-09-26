@@ -1,4 +1,4 @@
-# achlinux-wsl-setup
+# archlinux-wsl-setup
 My setup for run archlinux development environment.
 
 # IN DEVELOPMENT
