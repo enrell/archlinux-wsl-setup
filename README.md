@@ -57,8 +57,3 @@ cd ~/achlinux-wsl-setup && sh second.sh
 
 # Restart windows terminal and open your Arch
 ## You can set Arch as default profile
-
-# To run docker just run this.
-````
-docker
-````
