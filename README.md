@@ -25,7 +25,7 @@ pacman-key --init && pacman-key --populate && pacman -Syy archlinux-keyring git 
 reflector --country 'United States,Brazil' -l 10 --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 ````
 ````
-cd ~/
+cd /home
 git clone https://github.com/enrell/achlinux-wsl-setup.git
 cd achlinux-wsl-setup
 ````
@@ -47,7 +47,7 @@ wsl -d Arch
 ````
 And run the second script
 ````
-cd ~/achlinux-wsl-setup && sh second.sh
+cd /home/achlinux-wsl-setup && sh second.sh
 ````
 # zsh configuration
 ## leave it that way and save changes
