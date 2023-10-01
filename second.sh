@@ -2,7 +2,7 @@ sudo pacman -Sy wget curl exa make openssh python python-pip neovim zsh zsh-comp
 
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-echo "export PATH=$HOME/bin:/usr/local/bin:$PATH" >> ~/.zshrc
+echo 'export PATH="$HOME/bin:/usr/local/bin:$PATH"' >> ~/.zshrc
 
 ## oh my zsh setup
 git clone https://github.com/Daivasmara/daivasmara.zsh-theme.git
