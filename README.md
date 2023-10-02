@@ -49,6 +49,9 @@ And run the second script
 ````
 cd /home/achlinux-wsl-setup && sh second.sh
 ````
+````
+exit
+````
 # zsh configuration
 ## leave it that way and save changes
 ![screenshot](https://i.imgur.com/I1ReXZB.png)
