@@ -4,13 +4,6 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 echo 'export PATH="$HOME/bin:/usr/local/bin:$PATH"' >> ~/.zshrc
 
-## oh my zsh setup
-git clone https://github.com/Daivasmara/daivasmara.zsh-theme.git
-cd daivasmara.zsh-theme
-cp daivasmara.zsh-theme ~/.oh-my-zsh/themes/
-cd
-rm -rf daivasmara.zsh-theme/
-
 theme='ZSH_THEME="robbyrussell"'
 newTheme='ZSH_THEME="daivasmara"'
 
@@ -27,6 +20,13 @@ sed -i "s/$update/$newUpdate/" "$zsh"
 languageCommented="# export LANG=en_US.UTF-8"
 language="export LANG=en_US.UTF-8"
 sed -i "s/$languageCommented/$language/" "$zsh"
+
+## oh my zsh setup
+git clone https://github.com/Daivasmara/daivasmara.zsh-theme.git
+cd daivasmara.zsh-theme
+cp daivasmara.zsh-theme ~/.oh-my-zsh/themes/
+cd
+rm -rf daivasmara.zsh-theme/
 
 echo "alias ls='exa --color=auto'
 alias ll='exa -lah --color=auto'
