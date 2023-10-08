@@ -1,5 +1,5 @@
 # archlinux-wsl-setup
-My setup for run archlinux development environment.
+My setup to run archlinux development environment.
 
 # IN DEVELOPMENT
 A general setup for working with Docker in Arch linux. <br>
