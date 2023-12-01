@@ -18,7 +18,7 @@ After install folow the next steps.
 wsl -d Arch
 ````
 ````
-pacman-key --init && pacman-key --populate && pacman -Syy archlinux-keyring git reflector && pacman -Su --noconfirm
+pacman-key --init && pacman-key --populate && pacman -Syy archlinux-keyring git reflector --noconfirm && pacman -Su --noconfirm
 ````
 ## Set the mirrorlist to improve the download speed
 ````
