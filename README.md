@@ -6,7 +6,7 @@ A general setup for working with Docker in Arch linux. <br>
 
 # How to install <br>
 
-Download Arch zip file here: [Download](https://github.com/yuk7/ArchWSL/releases/tag/22.10.16.0).<br>
+Download Arch zip file here: [Download](https://github.com/yuk7/ArchWSL/releases).<br>
 Extract zip file and open Windows Terminal(recommended) or cmd. <br>
 <code>cd</code> to Arch folder path <br><br>
 Run the Arch.exe
