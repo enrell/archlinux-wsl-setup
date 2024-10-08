@@ -41,11 +41,11 @@ Change default user
 ````
 Arch.exe config --default-user your-user-here
 ````
-And open Arch again
+Open Arch again
 ````
 wsl -d Arch
 ````
-And run the second script
+Run the second script
 ````
 cd /home/achlinux-wsl-setup && sh second.sh
 ````
