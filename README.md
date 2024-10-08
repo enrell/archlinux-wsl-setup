@@ -2,7 +2,7 @@
 My setup to run archlinux development environment.
 
 # IN DEVELOPMENT
-A general setup for working with Docker in Arch linux. <br>
+A general setup for Arch linux (WSL). <br>
 
 # How to install <br>
 
