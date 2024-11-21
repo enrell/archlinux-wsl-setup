@@ -22,7 +22,7 @@ pacman-key --init && pacman-key --populate && pacman -Sy archlinux-keyring --noc
 ````
 ## Set the mirrorlist to improve the download speed and update
 ````
-pacman -S git reflector --noconfirm
+pacman -S git reflector openssl --noconfirm
 ````
 ````
 reflector --country 'United States,Brazil' -l 10 --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist && pacman -Su --noconfirm
