@@ -1,8 +1,8 @@
 # archlinux-wsl-setup
 My setup to run archlinux development environment.
 
-# IN DEVELOPMENT
-A general setup for Arch linux (WSL). <br>
+Sometimes i change something :)
+
 
 # How to install <br>
 
