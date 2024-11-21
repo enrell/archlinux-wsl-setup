@@ -11,7 +11,7 @@ Extract zip file and open Windows Terminal(recommended) or cmd. <br>
 <code>cd</code> to Arch folder path <br><br>
 Run the Arch.exe
 ````
-> Arch.exe
+.\Arch.exe
 ````
 After install folow the next steps.
 ````
