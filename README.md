@@ -42,7 +42,7 @@ exit
 ````
 Change default user
 ````
-Arch.exe config --default-user your-user-here
+.\Arch.exe config --default-user your-user-here
 ````
 Open Arch again
 ````
