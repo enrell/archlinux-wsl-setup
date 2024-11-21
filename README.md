@@ -18,14 +18,14 @@ After install folow the next steps.
 wsl -d Arch
 ````
 ````
-pacman-key --init && pacman-key --populate && pacman -Sy archlinux-keyring --noconfirm
+pacman-key --init && pacman-key --populate && pacman -Sy archlinux-keyring --noconfirm && archlinux-keyring-wkd-sync
 ````
-## Set the mirrorlist to improve the download speed
+## Set the mirrorlist to improve the download speed and update
 ````
-pacman -S git reflector --noconfirm && pacman -Su --noconfirm
+pacman -S git reflector --noconfirm
 ````
 ````
-reflector --country 'United States,Brazil' -l 10 --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+reflector --country 'United States,Brazil' -l 10 --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist && pacman -Su --noconfirm
 ````
 ````
 cd /home
