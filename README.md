@@ -57,9 +57,19 @@ exit
 ````
 # zsh configuration
 ## leave it that way and save changes
-![screenshot](https://i.imgur.com/I1ReXZB.png)
-![screenshot](https://i.imgur.com/ad8CbYU.png)
-![screenshot](https://i.imgur.com/pQwCU1r.png)
+![image](https://github.com/user-attachments/assets/b2e20e0a-a5ce-43d8-b60a-f7b2393f3105)
+![image](https://github.com/user-attachments/assets/12ca1539-a30a-49cc-a87f-7aa524a7824e)
+
+# My appearance settings
+![image](https://github.com/user-attachments/assets/a7f4980f-c7a2-47d7-a726-cf21a9a4ce35)
+
+# You can download the Hack Nerd Font here
+[https://www.nerdfonts.com/font-downloads](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/Hack.zip)
+
+![image](https://github.com/user-attachments/assets/d851b7c2-4550-48a4-a024-785cf525ecb9)
+![image](https://github.com/user-attachments/assets/7f958007-dd4e-4af8-98ad-5970c8b02157)
 
 # Restart windows terminal and open your Arch
-## You can set Arch as default profile
+## You can set Arch as default profile too
+![image](https://github.com/user-attachments/assets/46050fc8-10b7-4f2a-ab72-1e55eb1c3ca7)
+
