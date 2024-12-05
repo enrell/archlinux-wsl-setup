@@ -55,7 +55,7 @@ cd /home/achlinux-wsl-setup && sh second.sh
 ````
 exit
 ````
-# zsh configuration
+# fish configuration
 ## leave it that way and save changes
 ![image](https://github.com/user-attachments/assets/b2e20e0a-a5ce-43d8-b60a-f7b2393f3105)
 ![image](https://github.com/user-attachments/assets/12ca1539-a30a-49cc-a87f-7aa524a7824e)
