@@ -1,14 +1,37 @@
-sudo pacman -Sy --needed wget curl eza make openssh python python-pip neovim fish direnv starship --noconfirm
-sudo chown $USER:$USER ../achlinux-wsl-setup
-sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
+#!/usr/bin/env bash
 
-cd ..
-rm -rf ./yay
-cd
+# Exit immediately if a command exits with a non-zero status.
+set -e
 
-yay -Sy find-the-command --noconfirm
+echo "Starting Arch Linux WSL setup..."
 
+# Define common variables
+INSTALL_DIR="$HOME/archlinux-wsl-setup" # Use a dedicated setup directory in home
+YAY_DIR="$INSTALL_DIR/yay"
 FISH_CONFIG="$HOME/.config/fish/config.fish"
+
+# Create installation directory if it doesn't exist
+mkdir -p "$INSTALL_DIR"
+cd "$INSTALL_DIR"
+
+echo "Updating system packages and installing core utilities..."
+sudo pacman -Syu --needed --noconfirm wget curl eza make openssh python python-pip neovim fish direnv starship
+
+echo "Cloning and installing yay (AUR helper)..."
+# Ensure base-devel is installed before trying to build yay
+sudo pacman -S --needed --noconfirm git base-devel
+git clone https://aur.archlinux.org/yay.git "$YAY_DIR"
+cd "$YAY_DIR"
+makepkg -si --noconfirm
+cd "$INSTALL_DIR" # Go back to the main setup directory
+
+echo "Cleaning up yay build directory..."
+rm -rf "$YAY_DIR"
+
+echo "Installing find-the-command using yay..."
+yay -S --noconfirm find-the-command
+
+echo "Configuring Fish shell..."
 
 # Fish configuration content
 read -r -d '' FISH_CONFIG_CONTENT <<'EOF'
@@ -83,8 +106,8 @@ alias vdir='vdir --color=auto'
 alias grep='grep --color=auto'
 alias fgrep='grep -F --color=auto'
 alias egrep='grep -E --color=auto'
-alias hw='hwinfo --short'                          # Hardware Info
-alias big="expac -H M '%m\t%n' | sort -h | nl"     # Sort installed packages according to size in MB
+alias hw='hwinfo --short'            # Hardware Info
+alias big="expac -H M '%m\t%n' | sort -h | nl"    # Sort installed packages according to size in MB
 alias gitpkg='pacman -Q | grep -i "\-git" | wc -l' # List amount of -git packages
 
 # Get fastest mirrors
@@ -107,16 +130,17 @@ eval (direnv hook fish)
 EOF
 
 # Append the content to config.fish if it doesn't already exist
-if ! grep -q "starship init fish" "$FISH_CONFIG"; then
+# Using a more specific check for the 'starship init fish' line.
+if ! grep -Fq "starship init fish | source" "$FISH_CONFIG"; then
     echo "$FISH_CONFIG_CONTENT" >> "$FISH_CONFIG"
     echo "Fish configuration has been updated!"
 else
     echo "Fish configuration already contains the setup."
 fi
 
-# Remove setup folder
-cd ..
-sudo rm -rf achlinux-wsl-setup
-cd
+echo "Cleaning up setup directory..."
+cd "$HOME" # Change to home before removing the setup directory
+rm -rf "$INSTALL_DIR"
 
-echo "Continue the configuration: https://github.com/enrell/archlinux-wsl-setup/tree/main?tab=readme-ov-file#zsh-configuration"
+echo "Setup complete! Please consider restarting your shell or running 'exec fish' to apply changes."
+echo "For more configuration, refer to: https://github.com/enrell/archlinux-wsl-setup/tree/main?tab=readme-ov-file#zsh-configuration"
