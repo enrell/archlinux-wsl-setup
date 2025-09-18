@@ -60,7 +60,7 @@ stage_root() {
   # Ask whether to skip keyring initialization
   local SKIP_KEYRING=1
   printf "Skip pacman keyring initialization? [Y]/n: "
-  read -r ans_keyring || true
+  read -r ans_keyring </dev/tty
   case "${ans_keyring:-Y}" in
     [Yy]*) SKIP_KEYRING=1 ;;
     *)     SKIP_KEYRING=0 ;;
@@ -83,7 +83,7 @@ stage_root() {
   # Ask for preferred countries and persist configuration
   local input_countries
   printf "Enter countries for reflector (comma-separated) [United States,Brazil]: "
-  read -r input_countries || true
+  read -r input_countries </dev/tty
   if [ -z "${input_countries// }" ]; then
     COUNTRIES="United States,Brazil"
   else
@@ -104,7 +104,7 @@ stage_root() {
   # Ask whether to skip user creation
   local SKIP_USER=1
   printf "Skip user creation? [Y]/n: "
-  read -r ans_user || true
+  read -r ans_user </dev/tty
   case "${ans_user:-Y}" in
     [Yy]*) SKIP_USER=1 ;;
     *)     SKIP_USER=0 ;;
@@ -113,7 +113,7 @@ stage_root() {
   local username
   if [ "$SKIP_USER" -eq 0 ]; then
     printf "Enter your username: "
-    read -r username
+    read -r username </dev/tty
     if id "$username" >/dev/null 2>&1; then
       note "User '$username' already exists. Skipping creation."
     else
