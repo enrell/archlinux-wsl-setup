@@ -1,60 +1,77 @@
 # archlinux-wsl-setup
-My setup to run archlinux development environment.
+My setup to run an Arch Linux development environment on WSL.
 
-Sometimes i change something :)
+Sometimes I change things :)
 
 
-# How to install <br>
+# One‑liner auto install
 
-Download Arch zip file here: [Download](https://github.com/yuk7/ArchWSL/releases).<br>
-Extract zip file and open Windows Terminal(recommended) or cmd. <br>
-<code>cd</code> to Arch folder path <br><br>
-Run the Arch.exe
-````
-.\Arch.exe
-````
-After install folow the next steps.
-````
-wsl -d Arch
-````
-````
-pacman-key --init && pacman-key --populate && pacman -Sy archlinux-keyring --noconfirm && archlinux-keyring-wkd-sync
-````
-## Set the mirrorlist to improve the download speed and update
-````
-pacman -S git reflector openssl --noconfirm
-````
-````
-reflector --country 'United States,Brazil' -l 10 --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist && pacman -Su --noconfirm
-````
-````
-cd /home
-git clone https://github.com/enrell/achlinux-wsl-setup.git
-cd achlinux-wsl-setup
-````
-## Run the first script
-````
-sh first.sh
-````
-Go back to command prompt:
-````
+1) Install Arch on WSL from Windows PowerShell:
+
+```powershell
+wsl --install archlinux
+```
+
+2) Open Arch for the first time and run the installer as root. The installer will ask for your preferred countries (for fastest mirrors), a username (unless you skip), set up sudo, and more. Paste one of the following inside the Arch shell:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/enrell/archlinux-wsl-setup/main/install.sh | bash
+```
+
+or, if curl isn't available yet:
+
+```bash
+wget -qO- https://raw.githubusercontent.com/enrell/archlinux-wsl-setup/main/install.sh | bash
+```
+
+Optional: you can skip creating a user in Stage 1 by adding --skip-user at the end of the command (you’ll get instructions to add it later).
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/enrell/archlinux-wsl-setup/main/install.sh | bash -s -- --skip-user
+```
+
+3) When it finishes, exit the Arch shell and set the default user in PowerShell (replace YOUR_USER):
+
+```powershell
 exit
-````
-Change default user
-````
-.\Arch.exe config --default-user your-user-here
-````
-Open Arch again
-````
-wsl -d Arch
-````
-Run the second script
-````
-cd /home/achlinux-wsl-setup && sh second.sh
-````
-````
-exit
-````
+wsl --manage archlinux --set-default-user YOUR_USER
+```
+
+4) Open Arch again (now as your user) and run the same one‑liner to complete user setup (packages, yay, fish config):
+
+```powershell
+wsl -d archlinux
+```
+
+Then paste inside the Arch shell:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/enrell/archlinux-wsl-setup/main/install.sh | bash
+```
+
+or
+
+```bash
+wget -qO- https://raw.githubusercontent.com/enrell/archlinux-wsl-setup/main/install.sh | bash
+```
+
+You’ll be asked for mirror countries only in Stage 1. Stage 2 uses your saved choice.
+
+That's it. After completion you can restart your shell or run:
+
+```bash
+exec fish
+```
+
+Tip: You can set Arch as the default profile in Windows Terminal.
+
+
+## Notes
+
+- The installer performs the original manual steps automatically, including pacman keyring init, mirrorlist optimization, sudo/wheel, user creation, base packages, yay, and fish/starship/direnv configuration.
+- If curl fails due to SSL or networking issues, ensure your clock is correct and try again.
+
+
 # fish configuration
 ## leave it that way and save changes
 ![image](https://github.com/user-attachments/assets/b2e20e0a-a5ce-43d8-b60a-f7b2393f3105)
