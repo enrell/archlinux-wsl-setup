@@ -5,7 +5,6 @@
 # - If run as a regular user (second run), it installs packages, yay, and configures fish.
 #
 # Options:
-#   --skip-user             Skip creating a non-root user in Stage 1 (you'll need to create one later).
 #   -h, --help             Show this help.
 
 set -euo pipefail
@@ -17,33 +16,31 @@ is_root() { [ "${EUID:-$(id -u)}" -eq 0 ]; }
 
 usage() {
   cat <<'USAGE'
-Usage: install.sh [--skip-user]
+Usage: install.sh
 
 When run as root (Stage 1):
-  - Initializes pacman keyring, enables sudo for wheel.
+  - Optionally skip pacman keyring init (prompt), enables sudo for wheel.
   - Asks you for preferred countries (comma-separated) and refreshes mirrors using reflector.
-  - Creates a user unless --skip-user is passed.
+  - Optionally skip user creation (prompt) or create a user and set a password.
 
 When run as non-root (Stage 2):
   - Installs packages, yay (AUR), and configures fish/starship/direnv.
 
 Options:
-  --skip-user               Skip user creation in Stage 1.
   -h, --help               Show this help and exit.
 USAGE
 }
 
 # Defaults (can be overridden via config file)
-SKIP_USER=0
 CONFIG_FILE=/etc/archlinux-wsl-setup.conf
 COUNTRIES=${COUNTRIES:-"United States,Brazil"}
 
 # Parse CLI arguments
 while [ $# -gt 0 ]; do
   case "$1" in
-    --skip-user)
-      SKIP_USER=1
+    --)
       shift
+      break
       ;;
     -h|--help)
       usage
@@ -60,12 +57,24 @@ done
 stage_root() {
   bold "Stage 1/2: Root setup"
 
-  note "Initializing pacman keys and updating keyring..."
-  pacman-key --init || true
-  pacman-key --populate
-  pacman -Sy --noconfirm archlinux-keyring || true
-  if command -v archlinux-keyring-wkd-sync >/dev/null 2>&1; then
-    archlinux-keyring-wkd-sync || true
+  # Ask whether to skip keyring initialization
+  local SKIP_KEYRING=1
+  printf "Skip pacman keyring initialization? [Y]/n: "
+  read -r ans_keyring || true
+  case "${ans_keyring:-Y}" in
+    [Yy]*) SKIP_KEYRING=1 ;;
+    *)     SKIP_KEYRING=0 ;;
+  esac
+  if [ "$SKIP_KEYRING" -eq 0 ]; then
+    note "Initializing pacman keys and updating keyring..."
+    pacman-key --init || true
+    pacman-key --populate
+    pacman -Sy --noconfirm archlinux-keyring || true
+    if command -v archlinux-keyring-wkd-sync >/dev/null 2>&1; then
+      archlinux-keyring-wkd-sync || true
+    fi
+  else
+    note "Skipping pacman keyring initialization as requested."
   fi
 
   note "Installing prerequisites (git, reflector, openssl, sudo)..."
@@ -91,6 +100,15 @@ stage_root() {
   note "Enabling sudo for wheel group..."
   echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
   chmod 0440 /etc/sudoers.d/wheel
+
+  # Ask whether to skip user creation
+  local SKIP_USER=1
+  printf "Skip user creation? [Y]/n: "
+  read -r ans_user || true
+  case "${ans_user:-Y}" in
+    [Yy]*) SKIP_USER=1 ;;
+    *)     SKIP_USER=0 ;;
+  esac
 
   local username
   if [ "$SKIP_USER" -eq 0 ]; then
