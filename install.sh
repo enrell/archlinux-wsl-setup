@@ -167,7 +167,7 @@ stage_root() {
           ans_reset=N
         fi
         case "${ans_reset:-Y}" in
-          [Yy]*) note "Setting password for '$username'"; passwd "$username" <&3 >&3 2>&3 ;;
+          [Yy]*) note "Setting password for '$username'"; script -qec "passwd $username" /dev/null ;;
           *)     note "Skipped password change for '$username'." ;;
         esac
       else
@@ -175,7 +175,8 @@ stage_root() {
         useradd -m -G wheel -s /bin/bash "$username"
         if [ "$INTERACTIVE" -eq 1 ]; then
           note "Set a password for '$username'"
-          passwd "$username" <&3 >&3 2>&3
+          # Use script to allocate a pty for passwd
+          script -qec "passwd $username" /dev/null
         else
           note "No TTY detected; cannot set password now. Use: sudo passwd $username"
         fi
