@@ -158,17 +158,31 @@ stage_root() {
       note "No TTY detected; cannot prompt for username. Skipping user creation."
       SKIP_USER=1
     fi
-    if id "$username" >/dev/null 2>&1; then
-      note "User '$username' already exists. Skipping creation."
-    else
-      note "Creating user '$username' with shell /bin/bash and adding to wheel..."
-      useradd -m -G wheel -s /bin/bash "$username"
+    if [ "$SKIP_USER" -eq 0 ]; then
+      if id "$username" >/dev/null 2>&1; then
+        note "User '$username' already exists."
+        if [ "$INTERACTIVE" -eq 1 ]; then
+          read -r -u 3 -p "Reset password for '$username'? [Y]/n: " ans_reset
+        else
+          ans_reset=N
+        fi
+        case "${ans_reset:-Y}" in
+          [Yy]*) note "Setting password for '$username'"; passwd "$username" <&3 >&3 2>&3 ;;
+          *)     note "Skipped password change for '$username'." ;;
+        esac
+      else
+        note "Creating user '$username' with shell /bin/bash and adding to wheel..."
+        useradd -m -G wheel -s /bin/bash "$username"
+        if [ "$INTERACTIVE" -eq 1 ]; then
+          note "Set a password for '$username'"
+          passwd "$username" <&3 >&3 2>&3
+        else
+          note "No TTY detected; cannot set password now. Use: sudo passwd $username"
+        fi
+      fi
     fi
-
-    note "Set a password for '$username'"
-    passwd "$username"
   else
-    note "Skipping user creation as requested (--skip-user)."
+    note "Skipping user creation as requested."
   fi
 
   cat <<EOM
