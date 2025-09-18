@@ -14,6 +14,14 @@ note() { printf "[install] %s\n" "$*"; }
 
 is_root() { [ "${EUID:-$(id -u)}" -eq 0 ]; }
 
+# Open a dedicated TTY fd for interactive prompts (supports curl | bash)
+INTERACTIVE=1
+if [ -e /dev/tty ] && [ -r /dev/tty ] && [ -w /dev/tty ]; then
+  exec 3<>/dev/tty
+else
+  INTERACTIVE=0
+fi
+
 usage() {
   cat <<'USAGE'
 Usage: install.sh
@@ -59,8 +67,11 @@ stage_root() {
 
   # Ask whether to skip keyring initialization
   local SKIP_KEYRING=1
-  printf "Skip pacman keyring initialization? [Y]/n: "
-  read -r ans_keyring </dev/tty
+  if [ "$INTERACTIVE" -eq 1 ]; then
+    read -r -u 3 -p "Skip pacman keyring initialization? [Y]/n: " ans_keyring
+  else
+    ans_keyring=Y
+  fi
   case "${ans_keyring:-Y}" in
     [Yy]*) SKIP_KEYRING=1 ;;
     *)     SKIP_KEYRING=0 ;;
@@ -82,8 +93,11 @@ stage_root() {
 
   # Ask for preferred countries and persist configuration
   local input_countries
-  printf "Enter countries for reflector (comma-separated) [United States,Brazil]: "
-  read -r input_countries </dev/tty
+  if [ "$INTERACTIVE" -eq 1 ]; then
+    read -r -u 3 -p "Enter countries for reflector (comma-separated) [United States,Brazil]: " input_countries
+  else
+    input_countries=""
+  fi
   if [ -z "${input_countries// }" ]; then
     COUNTRIES="United States,Brazil"
   else
@@ -103,8 +117,11 @@ stage_root() {
 
   # Ask whether to skip user creation
   local SKIP_USER=1
-  printf "Skip user creation? [Y]/n: "
-  read -r ans_user </dev/tty
+  if [ "$INTERACTIVE" -eq 1 ]; then
+    read -r -u 3 -p "Skip user creation? [Y]/n: " ans_user
+  else
+    ans_user=Y
+  fi
   case "${ans_user:-Y}" in
     [Yy]*) SKIP_USER=1 ;;
     *)     SKIP_USER=0 ;;
@@ -112,8 +129,12 @@ stage_root() {
 
   local username
   if [ "$SKIP_USER" -eq 0 ]; then
-    printf "Enter your username: "
-    read -r username </dev/tty
+    if [ "$INTERACTIVE" -eq 1 ]; then
+      read -r -u 3 -p "Enter your username: " username
+    else
+      note "No TTY detected; cannot prompt for username. Skipping user creation."
+      SKIP_USER=1
+    fi
     if id "$username" >/dev/null 2>&1; then
       note "User '$username' already exists. Skipping creation."
     else
