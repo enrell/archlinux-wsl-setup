@@ -91,24 +91,47 @@ stage_root() {
   note "Installing prerequisites (git, reflector, openssl, sudo)..."
   pacman -S --needed --noconfirm git reflector openssl sudo curl wget
 
-  # Ask for preferred countries and persist configuration
-  local input_countries
+  # Ask whether to skip reflector mirror refresh
+  local SKIP_REFLECTOR=1
   if [ "$INTERACTIVE" -eq 1 ]; then
-    read -r -u 3 -p "Enter countries for reflector (comma-separated) [United States,Brazil]: " input_countries
+    read -r -u 3 -p "Skip mirror refresh with reflector? [Y]/n: " ans_reflector
   else
-    input_countries=""
+    ans_reflector=Y
   fi
-  if [ -z "${input_countries// }" ]; then
-    COUNTRIES="United States,Brazil"
-  else
-    COUNTRIES="$input_countries"
-  fi
-  printf "COUNTRIES=%q\n" "$COUNTRIES" > "$CONFIG_FILE"
-  chmod 0644 "$CONFIG_FILE" || true
+  case "${ans_reflector:-Y}" in
+    [Yy]*) SKIP_REFLECTOR=1 ;;
+    *)     SKIP_REFLECTOR=0 ;;
+  esac
 
-  note "Refreshing mirrors and updating system using: $COUNTRIES"
-  reflector --country "$COUNTRIES" -l 10 --age 12 \
-    --protocol https --sort rate --save /etc/pacman.d/mirrorlist || true
+  if [ "$SKIP_REFLECTOR" -eq 0 ]; then
+    # Ask for preferred countries and persist configuration
+    local input_countries
+    if [ "$INTERACTIVE" -eq 1 ]; then
+      read -r -u 3 -p "Enter countries for reflector (comma-separated) [United States,Brazil]: " input_countries
+    else
+      input_countries=""
+    fi
+    if [ -z "${input_countries// }" ]; then
+      COUNTRIES="United States,Brazil"
+    else
+      COUNTRIES="$input_countries"
+    fi
+    printf "COUNTRIES=%q\n" "$COUNTRIES" > "$CONFIG_FILE"
+    chmod 0644 "$CONFIG_FILE" || true
+
+    note "Refreshing mirrors using: $COUNTRIES"
+    reflector --country "$COUNTRIES" -l 10 --age 12 \
+      --protocol https --sort rate --save /etc/pacman.d/mirrorlist || true
+  else
+    note "Skipping mirror refresh with reflector."
+    # Ensure config exists with default countries for Stage 2 alias
+    if [ ! -f "$CONFIG_FILE" ]; then
+      printf "COUNTRIES=%q\n" "$COUNTRIES" > "$CONFIG_FILE"
+      chmod 0644 "$CONFIG_FILE" || true
+    fi
+  fi
+
+  # Update packages regardless of reflector usage
   pacman -Su --noconfirm || true
 
   note "Enabling sudo for wheel group..."
