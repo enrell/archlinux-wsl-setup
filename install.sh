@@ -167,19 +167,20 @@ stage_root() {
           ans_reset=N
         fi
         case "${ans_reset:-Y}" in
-          [Yy]*) note "Setting password for '$username'"; script -qec "passwd $username" /dev/null ;;
-          *)     note "Skipped password change for '$username'." ;;
+          [Yy]*) 
+            note "To reset password for '$username', run this command after the installer completes:"
+            note "  passwd $username"
+            ;;
+          *)     
+            note "Skipped password change for '$username'." 
+            ;;
         esac
       else
         note "Creating user '$username' with shell /bin/bash and adding to wheel..."
         useradd -m -G wheel -s /bin/bash "$username"
-        if [ "$INTERACTIVE" -eq 1 ]; then
-          note "Set a password for '$username'"
-          # Use script to allocate a pty for passwd
-          script -qec "passwd $username" /dev/null
-        else
-          note "No TTY detected; cannot set password now. Use: sudo passwd $username"
-        fi
+        note "User '$username' created successfully."
+        note "To set a password for '$username', run this command after the installer completes:"
+        note "  passwd $username"
       fi
     fi
   else
