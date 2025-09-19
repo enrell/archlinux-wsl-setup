@@ -179,8 +179,6 @@ stage_root() {
         note "Creating user '$username' with shell /bin/bash and adding to wheel..."
         useradd -m -G wheel -s /bin/bash "$username"
         note "User '$username' created successfully."
-        note "To set a password for '$username', run this command after the installer completes:"
-        note "  passwd $username"
       fi
     fi
   else
@@ -193,7 +191,7 @@ stage_root() {
 Root phase complete.
 
 Next steps (in Windows PowerShell):
-  1) Exit this shell:  exit
+  1) run passwd $username and exit
 EOM
 
   if [ "$SKIP_USER" -eq 0 ]; then
