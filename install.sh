@@ -269,102 +269,115 @@ stage_user() {
     # shellcheck disable=SC1091
     . /etc/archlinux-wsl-setup.conf || true
   fi
+  COUNTRIES=${COUNTRIES:-"United States,Brazil"}
 
-  # Write complete fish configuration, overwriting any existing content
-  cat > "$FISH_CONFIG" <<EOF
-# Check for interactive shell
+  # Write complete fish configuration with a placeholder for countries, then replace it safely
+  cat > "$FISH_CONFIG" <<'EOF_FISH'
+# ~/.config/fish/config.fish
+
+# Only run in interactive shells
 if status is-interactive
+  set -g fish_greeting ""
+
+  # Starship prompt (if installed)
+  if type -q starship
     starship init fish | source
-    set -g fish_greeting ""
-end
-
-# Add ~/.local/bin to PATH
-if test -d ~/.local/bin
-    if not contains -- ~/.local/bin \$PATH
-        set -p PATH ~/.local/bin
-    end
-end
-
-# Advanced command-not-found hook
-source /usr/share/doc/find-the-command/ftc.fish
-
-function __history_previous_command_arguments
-  switch (commandline -t)
-  case "!"
-    commandline -t ""
-    commandline -f history-token-search-backward
-  case "*"
-    commandline -i '\$'
   end
 end
 
-if [ "\$fish_key_bindings" = fish_vi_key_bindings ];
-  bind -Minsert ! __history_previous_command
-  bind -Minsert '\$' __history_previous_command_arguments
-else
-  bind ! __history_previous_command
-  bind '\$' __history_previous_command_arguments
+# Ensure ~/.local/bin is in PATH via fish_user_paths
+if test -d $HOME/.local/bin
+  if not contains -- $HOME/.local/bin $fish_user_paths
+    set -Ua fish_user_paths $HOME/.local/bin
+  end
 end
 
-# Fish command history
+# direnv (if installed)
+if type -q direnv
+  direnv hook fish | source
+end
+
+# Advanced command-not-found hook (find-the-command), if available
+if test -f /usr/share/doc/find-the-command/ftc.fish
+  source /usr/share/doc/find-the-command/ftc.fish
+end
+
+function __history_previous_command_arguments
+  switch (commandline -t)
+    case "!"
+      commandline -t ""
+      commandline -f history-token-search-backward
+    case "*"
+      commandline -i '$'
+  end
+end
+
+if test "$fish_key_bindings" = fish_vi_key_bindings
+  bind -Minsert ! __history_previous_command
+  bind -Minsert '$' __history_previous_command_arguments
+else
+  bind ! __history_previous_command
+  bind '$' __history_previous_command_arguments
+end
+
+# Show timestamps in history output
 function history
-    builtin history --show-time='%F %T '
+  builtin history --show-time='%F %T '
 end
 
 function backup --argument filename
-    cp \$filename \$filename.bak
+  cp $filename $filename.bak
 end
 
 # Useful aliases
 alias ls='eza -l --color=always --group-directories-first --icons' # preferred listing
 alias la='eza -a --color=always --group-directories-first --icons'  # all files and dirs
-alias ll='eza -la --color=always --group-directories-first --icons'  # long format
+alias ll='eza -la --color=always --group-directories-first --icons' # long format
 alias lt='eza -aT --color=always --group-directories-first --icons' # tree listing
-alias l.='eza -ald --color=always --group-directories-first --icons .*' # show only dotfiles
+alias l.='eza -ald --color=always --group-directories-first --icons .*' # only dotfiles
 alias ip='ip -color'
 
-# Common use
-alias grubup="sudo update-grub"
-alias fixpacman="sudo rm /var/lib/pacman/db.lck"
-alias tarnow='tar -acf '
-alias untar='tar -xvf '
-alias wget='wget -c '
-alias install="sudo pacman -S"
-alias update="sudo pacman -Sy"
-alias remove="sudo pacman -Rdd"
-alias psmem='ps auxf | sort -nr -k 4'
-alias psmem10='ps auxf | sort -nr -k 4 | head -10'
+# Pacman helpers
+alias install='sudo pacman -S'
+alias update='sudo pacman -Sy'
 alias upgrade='sudo pacman -Syu'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias dir='dir --color=auto'
-alias vdir='vdir --color=auto'
-alias grep='grep --color=auto'
-alias fgrep='grep -F --color=auto'
-alias egrep='grep -E --color=auto'
-alias hw='hwinfo --short'            # Hardware Info
-alias big="expac -H M '%m\t%n' | sort -h | nl"    # Sort installed packages according to size in MB
-alias gitpkg='pacman -Q | grep -i "\-git" | wc -l' # List amount of -git packages
+alias remove='sudo pacman -Rdd'
+alias fixpacman='sudo rm /var/lib/pacman/db.lck'
 
-# Get fastest mirrors - customized by installer
-alias update-mirrorlist="sudo reflector -l 30 --country '$COUNTRIES' --age 12 --protocol https,http --save /etc/pacman.d/mirrorlist"
+# Mirrorlist refresh (countries injected by installer)
+set -gx ARCH_SETUP_COUNTRIES "__COUNTRIES__"
+alias update-mirrorlist="sudo reflector -l 30 --country '$ARCH_SETUP_COUNTRIES' --age 12 --protocol https,http --save /etc/pacman.d/mirrorlist"
 
-# Cleanup orphaned packages
-alias cleancache='sudo pacman -Rns (pacman -Qtdq)'
+# Cleanup orphaned packages (ignore if none)
+function cleancache
+  set -l orphans (pacman -Qtdq 2>/dev/null)
+  if test -n "$orphans"
+    sudo pacman -Rns $orphans
+  else
+    echo "No orphaned packages"
+  end
+end
 
-# Get the error messages from journalctl
-alias jctl="journalctl -p 3 -xb"
-
-# Recent installed packages
+# Journal and package helpers
+alias jctl='journalctl -p 3 -xb'
 alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -200 | nl"
+alias big="expac -H M '%m\t%n' | sort -h | nl"
+alias gitpkg='pacman -Q | grep -i "-git" | wc -l'
 
-# fast stop/start containers
+# Docker helpers
 alias stop-containers='sudo docker stop (sudo docker ps -q)'
 alias start-containers='sudo docker start (sudo docker ps -a -q)'
+EOF_FISH
 
-eval (direnv hook fish)
-EOF
+  # Inject selected countries safely into the config
+  # shellcheck disable=SC2001
+  sed -i "s|__COUNTRIES__|${COUNTRIES}|g" "$FISH_CONFIG"
+
+  # Sanity check to ensure file is non-empty
+  if [ ! -s "$FISH_CONFIG" ]; then
+  echo "Error: fish config generation failed; writing minimal fallback." >&2
+  printf 'if status is-interactive; set -g fish_greeting ""; end\n' > "$FISH_CONFIG"
+  fi
 
   note "Fish configuration has been written with all content."
 
